@@ -7,6 +7,7 @@ from netmiko import ConnectHandler
 # Creditials
 username = input('Username: ')
 password = getpass.getpass('Password: ')
+ikepsk = input ('IKE Pre-shared-key: ')
 
 # Define Nodes
 script, csv_file = argv
@@ -23,7 +24,7 @@ for devices in all_hubs:
     devices['password'] = password
     net_connect = ConnectHandler(**devices)
     config_commands = ['crypto keyring DMVPN vrf WAN1',
-    'pre-shared-key address 0.0.0.0 key cad2334edz1',
+    'pre-shared-key address 0.0.0.0 key %s' %ikepsk,
     'crypto isakmp policy 10',
     'authentication pre-share',
     'encryption aes 256',
@@ -38,7 +39,7 @@ for devices in all_hubs:
     'set transform-set ESP-AES256-SHA2',
     'set pfs group14']
     output = net_connect.send_config_set(config_commands)
-    print(output)
+    #print(output)
 
 # Configure Loopbacks
 c = 1
@@ -49,7 +50,7 @@ for devices in all_hubs:
     config_commands = ['interface loopback0',
     'ip address 10.99.99.' + str(c)+ ' 255.255.255.255']
     output = net_connect.send_config_set(config_commands)
-    print(output)
+    #print(output)
     c = c + 1
 
 # Configure Hub Tunnels - Hub1 .1 Hub2 .2
@@ -67,7 +68,7 @@ for devices in all_hubs:
     'tunnel vrf WAN1',
     'tunnel protection ipsec profile DMVPN_ipsec']
     output = net_connect.send_config_set(config_commands)
-    print(output)
+    #print(output)
     h = h + 1
 
 # EIGRP Configurations
@@ -82,4 +83,5 @@ for devices in all_hubs:
     'no next-hop-self',
     'no split-horizon']
     output = net_connect.send_config_set(config_commands)
-    print(output)
+    #print(output)
+print ('DMVPN Hubs configured')
